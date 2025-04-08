@@ -396,31 +396,34 @@
       <child link="${tf_prefix}tool0"/>
     </joint>
 
-    <!-- End effector -->
-    <joint name="${tf_prefix}end_effector_joint" type="fixed">
-      <origin xyz="0.0 0.0 0.05" rpy="0 0 0"/>
+    <!-- Add RH-P12-RN-A gripper -->
+    <xacro:include filename="$(find rh_p12_rn_a_description)/urdf/materials.xacro" />
+    <xacro:include filename="$(find rh_p12_rn_a_description)/urdf/rh_p12_rn_a_gripper.xacro" />
+    <xacro:include filename="$(find rh_p12_rn_a_description)/urdf/rh_p12_rn_a.gazebo" />
+    <xacro:include filename="$(find rh_p12_rn_a_description)/urdf/rh_p12_rn_a_control.xacro" />
+
+    <xacro:rh_p12_rn_a_gripper prefix="${tf_prefix}" />
+    <xacro:rh_p12_rn_a_gazebo prefix="${tf_prefix}" />
+    <xacro:rh_p12_rn_a_system name="GazeboSystem" prefix="${tf_prefix}"/>
+
+    <!-- Used for fixing gripper to the UR tool -->
+    <joint name="${tf_prefix}gripper_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <parent link="${tf_prefix}tool0"/>
-      <child link="${tf_prefix}end_effector_link"/>
+      <child link="${tf_prefix}rh_p12_rn_base"/>
     </joint>
 
-    <!-- End effector link -->
-    <link name="${tf_prefix}end_effector_link">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <box size="0.01 0.01 0.01" />
-        </geometry>
-        <material name="red"/>
-      </visual>
-
-      <inertial>
-        <origin xyz="0 0 0" />
-        <mass value="1.0e-03" />
-        <inertia ixx="1.0e-03" ixy="0.0" ixz="0.0"
-                iyy="1.0e-03" iyz="0.0"
-                izz="1.0e-03" />
-      </inertial>
-    </link>
+    <gazebo>
+      <plugin
+          filename="gz-sim-joint-state-publisher-system"
+          name="gz::sim::systems::JointStatePublisher">
+          <topic>joint_states</topic>
+          <joint_name>${tf_prefix}rh_r1_joint</joint_name>
+          <joint_name>${tf_prefix}rh_r2</joint_name>
+          <joint_name>${tf_prefix}rh_l1</joint_name>
+          <joint_name>${tf_prefix}rh_l2</joint_name>
+      </plugin>
+    </gazebo>
 
   </xacro:macro>
 </robot>
